@@ -1,16 +1,205 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Thesis Dashboard</title>
+  <meta charset="UTF-8">
+  <title>Segmentation and Forecasting of Maritime Agri-Food Trade Dashboard</title>
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      margin: 0;
+      background-color: #f7f9fc;
+      color: #222;
+    }
+
+    header {
+      background-color: #1f4e79;
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 32px;
+    }
+
+    header p {
+      margin-top: 10px;
+      font-size: 16px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    section {
+      margin-bottom: 50px;
+    }
+
+    h2 {
+      color: #1f4e79;
+      border-bottom: 2px solid #e0e6ef;
+      padding-bottom: 8px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 25px;
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+    }
+
+    .card h3 {
+      margin-top: 0;
+      color: #003366;
+    }
+
+    footer {
+      background-color: #eef2f7;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .meta {
+      font-size: 15px;
+      line-height: 1.6;
+      max-width: 900px;
+    }
+
+    a {
+      color: #1f4e79;
+    }
+  </style>
 </head>
+
 <body>
 
-<h1>Maritime Agri-Food Trade Forecast Dashboard</h1>
+<header>
+  <h1>Maritime Agri-Food Trade Forecast Dashboard</h1>
+  <p>
+    Interactive dashboards accompanying the Master Thesis:<br>
+    <strong>“Segmentation and Forecasting of Maritime Agri-Food Trade for Food Security: A Gravity–Machine Learning Approach”</strong>
+  </p>
+</header>
 
-<p>
-This page accompanies my Master Thesis.
-</p>
+<main>
+
+  <section>
+    <h2>About the Research</h2>
+    <p class="meta">
+      This dashboard accompanies the submitted master’s thesis and provides an open-access view of the
+      empirical results developed in the study. The research examines bilateral maritime trade flows of
+      food-security-relevant agricultural commodities using a combined gravity–machine learning framework.
+      Econometric specifications (OLS and PPML) are employed to identify structural trade relationships,
+      while artificial neural networks are used to enhance short-horizon forecasting performance under
+      heterogeneous and volatile trade conditions. The dashboard is designed to support transparency,
+      replicability, and policy-relevant interpretation of the thesis results.
+    </p>
+  </section>
+
+  <section>
+    <h2>Dashboards</h2>
+    <div class="card-grid">
+
+      <a class="card" href="trade_forecast.html">
+        <h3>📈 Trade Volume Forecast</h3>
+        <p>
+          Bilateral maritime agri-food trade forecasts under baseline scenarios,
+          comparing econometric and machine learning models.
+        </p>
+      </a>
+
+      <a class="card" href="cost_forecast.html">
+        <h3>🚢 Transport Cost Forecast</h3>
+        <p>
+          Forecasted maritime transport costs and sensitivity to connectivity,
+          distance, and macroeconomic drivers.
+        </p>
+      </a>
+
+      <a class="card" href="segmentation.html">
+        <h3>🗺️ Trade & Risk Segmentation</h3>
+        <p>
+          Country and corridor-level segmentation highlighting exposure to
+          maritime trade risks and food security relevance.
+        </p>
+      </a>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>Data View</h2>
+    <p class="meta">
+      This section provides access to the underlying panel datasets used in the empirical analysis.
+      To ensure transparency and reproducibility, the processed bilateral trade and transport datasets
+      are made available in tabular form. These tables correspond to the inputs used for the estimation
+      and forecasting exercises reported in the thesis.
+    </p>
+
+    <div class="card-grid">
+
+      <a class="card" href="data_panel_overview.html">
+        <h3>📊 Bilateral Panel Dataset</h3>
+        <p>
+          Full country–commodity–year panel including maritime trade volumes, transport costs,
+          connectivity indicators, and macroeconomic controls.
+        </p>
+      </a>
+
+      <a class="card" href="data_dictionary.html">
+        <h3>📘 Data Dictionary</h3>
+        <p>
+          Variable definitions, units of measurement, transformations, and data source references
+          corresponding to the empirical models.
+        </p>
+      </a>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>Methodology Summary</h2>
+    <p class="meta">
+      <strong>Data:</strong> Consolidated bilateral panel dataset (2015–2021) combining UNCTAD maritime trade
+      flows, FAO Food Balance Sheet indicators, CEPII gravity variables, and liner shipping connectivity metrics.<br><br>
+
+      <strong>Methods:</strong> Structural gravity models estimated via OLS and PPML with fixed effects, benchmarked
+      against machine-learning-based forecasting using artificial neural networks (ANN).<br><br>
+
+      <strong>Scope:</strong> Commodity- and corridor-level analysis of maritime agri-food trade with forward-looking
+      baseline projections to support food security risk assessment.
+    </p>
+  </section>
+
+</main>
+
+<footer>
+  © 2026 — Master Thesis Dashboard · Open-access via GitHub Pages
+</footer>
 
 </body>
 </html>
