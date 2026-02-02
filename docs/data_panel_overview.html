@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bilateral Panel Dataset</title>
+
+  <!-- DataTables CSS -->
+  <link rel="stylesheet"
+        href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      margin: 30px;
+      background-color: #f7f9fc;
+    }
+
+    h1 {
+      color: #1f4e79;
+    }
+
+    table.dataTable {
+      width: 100% !important;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Bilateral Maritime Agri-Food Panel Dataset (2015–2021)</h1>
+
+<p>
+This interactive table presents the processed bilateral panel dataset used in the
+econometric and machine learning models of the thesis.
+Use the search box to filter observations and scroll to explore the full variable set.
+</p>
+
+<p>
+<a href="data/panel_dataset.csv" download>
+⬇ Download full dataset (CSV)
+</a>
+</p>
+
+<table id="panelTable" class="display nowrap">
+  <thead>
+    <tr></tr>
+  </thead>
+</table>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<script>
+fetch("data/panel_dataset.csv")
+  .then(response => response.text())
+  .then(csvText => {
+
+    const rows = csvText.split("\n").map(r => r.split(","));
+    const headers = rows[0];
+    const data = rows.slice(1);
+
+    // Build header
+    let headerRow = "";
+    headers.forEach(h => headerRow += `<th>${h}</th>`);
+    document.querySelector("#panelTable thead tr").innerHTML = headerRow;
+
+    // Initialize DataTable
+    $('#panelTable').DataTable({
+      data: data,
+      columns: headers.map(h => ({ title: h })),
+      scrollX: true,
+      scrollY: "500px",
+      scrollCollapse: true,
+      paging: true,
+      pageLength: 25
+    });
+
+  });
+</script>
+
+</body>
+</html>
