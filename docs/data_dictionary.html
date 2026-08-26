@@ -5,11 +5,124 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Data Dictionary</title>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 </head>
 <body>
-<nav class="site-nav" aria-label="Primary navigation"><div class="nav-links"><a href="index.html">Home</a><a href="segmentation.html">Segmentation</a><a href="transport_cost_model.html">Transport Cost</a><a href="trade_flow_model.html">Trade Flow</a><a href="forecast_simulation.html">Forecast</a><a href="data_panel_overview.html" aria-current="page">Data</a></div></nav>
-<header><h1>Data Dictionary</h1><p>A future reference for variables, units, transformations, and source information used in the thesis datasets.</p></header>
-<main><span class="status">MVP · Under development</span><section class="placeholder"><h2>Dataset documentation</h2><p>This page is reserved for the data dictionary. Verified variable definitions and source documentation will be added in a later development phase.</p><p><a href="data_panel_overview.html">View the bilateral panel dataset</a></p></section></main>
+
+<nav class="site-nav" aria-label="Primary navigation">
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="segmentation.html">Segmentation</a>
+    <a href="transport_cost_model.html">Transport Cost</a>
+    <a href="trade_flow_model.html">Trade Flow</a>
+    <a href="forecast_simulation.html">Forecast</a>
+    <a href="data_panel_overview.html" aria-current="page">Data</a>
+  </div>
+</nav>
+
+<header>
+  <h1>Data Dictionary</h1>
+  <p>Definitions and metadata for variables used across the master thesis dashboard.</p>
+</header>
+
+<main>
+  <section aria-labelledby="introduction-heading">
+    <h2 id="introduction-heading">Introduction</h2>
+    <p class="meta">
+      This data dictionary documents the variables used throughout the research dashboard.
+      It provides a reusable reference for descriptions, units, sources, transformations,
+      and the dashboard modules in which each variable is used.
+    </p>
+  </section>
+
+  <section aria-labelledby="summary-heading">
+    <h2 id="summary-heading">Dataset Summary</h2>
+    <div class="card-grid">
+      <div class="placeholder">
+        <h3>Variables documented</h3>
+        <p id="variableCount" aria-live="polite">Loading…</p>
+      </div>
+      <div class="placeholder">
+        <h3>Status</h3>
+        <p>MVP</p>
+      </div>
+      <div class="placeholder">
+        <h3>Source</h3>
+        <p>overview_panel_data.csv</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="dictionary-heading">
+    <h2 id="dictionary-heading">Interactive Data Dictionary</h2>
+    <p>Search, sort, and browse the variable metadata below.</p>
+    <p><a class="status" href="data/data_dictionary.csv" download>Download Data Dictionary (CSV)</a></p>
+    <p id="dictionaryError" role="alert" hidden></p>
+    <div class="placeholder">
+      <table id="dictionaryTable" class="display nowrap" aria-describedby="dictionary-heading">
+        <thead><tr></tr></thead>
+      </table>
+    </div>
+  </section>
+</main>
+
 <footer>© 2026 — Master Thesis Dashboard · Open-access via GitHub Pages</footer>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script>
+(function () {
+  const countElement = document.getElementById("variableCount");
+  const errorElement = document.getElementById("dictionaryError");
+
+  function showError(message) {
+    countElement.textContent = "Unavailable";
+    errorElement.textContent = message;
+    errorElement.hidden = false;
+  }
+
+  Papa.parse("data/data_dictionary.csv", {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function (results) {
+      if (results.errors.length > 0) {
+        console.error("Data dictionary CSV parse errors:", results.errors);
+        showError("The data dictionary could not be parsed. Please try again later.");
+        return;
+      }
+
+      const data = results.data;
+      const fields = results.meta.fields;
+
+      if (!data || data.length === 0 || !fields || fields.length === 0) {
+        showError("The data dictionary is currently empty or unavailable.");
+        return;
+      }
+
+      const columns = fields.map(function (field) {
+        return { title: field, data: field };
+      });
+
+      countElement.textContent = data.length.toLocaleString();
+
+      $("#dictionaryTable").DataTable({
+        data: data,
+        columns: columns,
+        scrollX: true,
+        paging: true,
+        pageLength: 25,
+        deferRender: true
+      });
+    },
+    error: function (error) {
+      console.error("Unable to load data dictionary CSV:", error);
+      showError("The data dictionary could not be loaded. Please try again later.");
+    }
+  });
+}());
+</script>
+
 </body>
 </html>
