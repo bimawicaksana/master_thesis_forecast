@@ -1,0 +1,14 @@
+{
+  "base_year": 2024,
+  "future_years": [2025, 2026, 2027, 2028, 2029, 2030],
+
+  "baseline_growth": {
+    "gdp_growth": 0.016,
+    "population_growth": 0.013,
+    "production_growth": 0.00,
+    "calorific_growth": 0.00,
+    "lsbci_growth": 0.00,
+    "bdi_growth": 0.00,
+    "fbx_growth": 0.00
+  }
+}

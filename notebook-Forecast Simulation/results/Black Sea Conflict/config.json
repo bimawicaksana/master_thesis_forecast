@@ -1,0 +1,44 @@
+{
+  "baseline_config": {
+    "gdp_growth": 0.016,
+    "population_growth": 0.013,
+    "production_growth": 0.0,
+    "calorific_growth": 0.0,
+    "lsbci_growth": 0.0,
+    "bdi_growth": 0.0,
+    "fbx_growth": 0.0
+  },
+  "scenario_config": {
+    "scenario_name": "Black Sea Conflict",
+    "affected_corridors": [
+      [
+        "UKR",
+        "TUR"
+      ],
+      [
+        "RUS",
+        "EGY"
+      ]
+    ],
+    "affected_product_codes": [
+      "1001",
+      "1005"
+    ],
+    "transport_shocks": {
+      "freight_proxy_fbx": 0.3,
+      "connectivity_lsbci": -0.08,
+      "distance_proxy": 0.12,
+      "bdi_proxy": 0.0
+    },
+    "country_shocks": {
+      "production_by_origin_country": {
+        "UKR": -0.15,
+        "RUS": -0.1
+      },
+      "demand_by_destination_country": {
+        "EGY": -0.08
+      }
+    },
+    "apply_demand_to_calorific_proxy": false
+  }
+}

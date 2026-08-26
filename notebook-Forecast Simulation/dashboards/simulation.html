@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Maritime Trade Stress Test Dashboard</title>
+
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 40px;
+    background: #fafafa;
+}
+
+h1 { font-weight: 600; }
+
+.filters {
+    margin-bottom: 30px;
+}
+
+select {
+    padding: 6px;
+    margin-right: 15px;
+    min-width: 140px;
+}
+
+.chart {
+    margin-top: 50px;
+}
+
+.description-box {
+    background: #ffffff;
+    border-left: 5px solid #2c3e50;
+    padding: 15px;
+    margin-bottom: 25px;
+    box-shadow: 0px 1px 4px rgba(0,0,0,0.08);
+}
+</style>
+</head>
+
+<body>
+
+<h1>Maritime Cereal Trade – Stress Test Dashboard</h1>
+
+<div class="description-box" id="scenarioDescription">
+    Loading scenario description...
+</div>
+
+<div class="filters">
+    Scenario:
+    <select id="scenarioSelect"></select>
+
+    Year:
+    <select id="yearSelect" multiple></select>
+
+    Product:
+    <select id="productSelect" multiple></select>
+
+    Origin:
+    <select id="originSelect" multiple></select>
+
+    Destination:
+    <select id="destinationSelect" multiple></select>
+
+    <label style="margin-left:15px;">
+        <input type="checkbox" id="affectedToggle">
+        Affected corridors only
+    </label>
+
+    <label style="margin-left:15px;">
+        <input type="checkbox" id="baselineOnlyToggle">
+        Baseline only
+    </label>
+</div>
+
+<div id="tradeTimeline" class="chart"></div>
+<div id="tradeLevel" class="chart"></div>
+<div id="costIndex" class="chart"></div>
+<div id="costLevel" class="chart"></div>
+<div id="importerBurdenDelta" class="chart"></div>
+<div id="importerBurdenLevel" class="chart"></div>
+<div id="corridorRanking" class="chart"></div>
+<div id="combinedTimeline" class="chart"></div>
+<div id="productionTimeline" class="chart"></div>
+<div id="avgCostTimeline" class="chart"></div>
+
+<script>
+
+let baselineData, scenarioData, compareData, scenarioConfig, gapData, fobData;
+
+let availableScenarios = [];
+
+// -------------------------
+// AUTO-DISCOVER SCENARIOS
+// -------------------------
+async function loadScenarioList() {
+
+    // Manually maintain a lightweight index file under results/
+    // called scenarios.json listing folder names
+    // Example content:
+    // ["black_sea", "el_nino", "eu_ets"]
+
+    availableScenarios = await fetch("../results/scenarios.json").then(r => r.json());
+
+    const select = document.getElementById("scenarioSelect");
+    select.innerHTML = "";
+
+    availableScenarios.forEach(name => {
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.text = name.replaceAll("_"," ").toUpperCase();
+        select.appendChild(opt);
+    });
+}
+
+// -------------------------
+// LOAD SCENARIO
+// -------------------------
+async function loadScenario(name) {
+
+    baselineData = await fetch(`../results/${name}/baseline.json`).then(r => r.json());
+    scenarioData = await fetch(`../results/${name}/scenario.json`).then(r => r.json());
+    compareData  = await fetch(`../results/${name}/compare.json`).then(r => r.json());
+    scenarioConfig = await fetch(`../results/${name}/config.json`).then(r => r.json());
+
+    gapData = await fetch(`../dashboards/data/gapyear.json`).then(r => r.json());
+    fobData = await fetch(`../dashboards/data/fob_reference.json`).then(r => r.json());
+
+    const aff = scenarioConfig.scenario_config?.affected_corridors || [];
+    affectedCorridors = new Set(
+        aff.map(c => c[0] + "_" + c[1])
+    );
+
+    updateDescription();
+    populateFilters();
+
+    // --- RESET FILTERS WHEN SCENARIO CHANGES ---
+    ["yearSelect","productSelect","originSelect","destinationSelect"]
+    .forEach(id => {
+        const select = document.getElementById(id);
+        Array.from(select.options).forEach(opt => opt.selected = false);
+    });
+
+    // Default: select latest year automatically
+    const yearSelect = document.getElementById("yearSelect");
+    if (yearSelect.options.length > 0) {
+        yearSelect.options[yearSelect.options.length - 1].selected = true;
+    }
+
+    updateCharts();
+}
+
+// -------------------------
+// DESCRIPTION BOX
+// -------------------------
+function updateDescription() {
+
+    const box = document.getElementById("scenarioDescription");
+
+    const s = scenarioConfig.scenario_config;
+
+    box.innerHTML = `
+        <strong>${s.scenario_name}</strong><br><br>
+        <b>Transport Shocks:</b><br>
+        Connectivity: ${s.transport_shocks.connectivity_lsbci ?? 0}<br>
+        Freight (FBX): ${s.transport_shocks.freight_proxy_fbx ?? 0}<br>
+        Distance: ${s.transport_shocks.distance_proxy ?? 0}<br>
+        BDI: ${s.transport_shocks.bdi_proxy ?? 0}<br><br>
+        <b>Affected Products:</b> ${s.affected_product_codes?.join(", ") || "All"}
+    `;
+}
+
+// -------------------------
+// MULTISELECT UTIL
+// -------------------------
+function getSelectedValues(id) {
+    return Array.from(document.getElementById(id).selectedOptions)
+                .map(opt => opt.value);
+}
+
+// -------------------------
+function uniqueValues(data, key) {
+    return [...new Set(data.map(d => d[key]))].sort();
+}
+
+// -------------------------
+function populateFilters() {
+
+    populateMulti("yearSelect", uniqueValues(compareData,"year"));
+    populateMulti("productSelect", uniqueValues(compareData,"product_code"));
+    populateMulti("originSelect", uniqueValues(compareData,"origin_isocode"));
+    populateMulti("destinationSelect", uniqueValues(compareData,"destination_isocode"));
+}
+
+// -------------------------
+function populateMulti(id, values) {
+
+    const select = document.getElementById(id);
+    select.innerHTML = "";
+
+    values.forEach(v => {
+        const opt = document.createElement("option");
+        opt.value = v;
+        opt.text = v;
+        select.appendChild(opt);
+    });
+
+    // Auto-select latest year for Year selector
+    if (id === "yearSelect" && values.length > 0) {
+        const lastValue = values[values.length - 1];
+        Array.from(select.options).forEach(opt => {
+            if (opt.value == lastValue) opt.selected = true;
+        });
+    }
+}
+
+// -------------------------
+function filterData(data) {
+
+    const years = getSelectedValues("yearSelect");
+    const products = getSelectedValues("productSelect");
+    const origins = getSelectedValues("originSelect");
+    const dests = getSelectedValues("destinationSelect");
+    const affectedOnly = document.getElementById("affectedToggle").checked;
+
+    return data.filter(d => {
+
+        const corridorKey = d.origin_isocode + "_" + d.destination_isocode;
+
+        return (
+            (years.length === 0 || years.includes(String(d.year))) &&
+            (products.length === 0 || products.includes(d.product_code)) &&
+            (origins.length === 0 || origins.includes(d.origin_isocode)) &&
+            (dests.length === 0 || dests.includes(d.destination_isocode)) &&
+            (!affectedOnly || affectedCorridors.has(corridorKey))
+        );
+    });
+}
+
+// -------------------------
+function groupByYear(data, field, agg="sum") {
+
+    const map = {};
+
+    data.forEach(d => {
+        if (!map[d.year]) map[d.year] = [];
+        map[d.year].push(d[field]);
+    });
+
+    return Object.keys(map).map(y => ({
+        year: +y,
+        value: agg === "mean"
+            ? map[y].reduce((a,b)=>a+b,0)/map[y].length
+            : map[y].reduce((a,b)=>a+b,0)
+    })).sort((a,b)=>a.year-b.year);
+}
+
+function drawCombinedVolumeTimeline(base) {
+
+    if(!gapData) return;
+
+    const gap = gapData.filter(d => d.year >= 2022 && d.year <= 2024);
+
+    const gapAgg = groupByYear(gap,"tons_seamode_pred","sum");
+    const baseAgg = groupByYear(base,"tons_seamode_pred","sum");
+
+    const combined = [...gapAgg, ...baseAgg]
+        .sort((a,b)=>a.year-b.year);
+
+    Plotly.newPlot("combinedTimeline",[{
+        x: combined.map(d=>d.year),
+        y: combined.map(d=>d.value),
+        mode:"lines+markers",
+        name:"Gap + Baseline"
+    }],{
+        title:"Global Seaborne Trade Forecast (2022–2030)",
+        xaxis:{title:"Year"},
+        yaxis:{title:"Predicted Seaborne Trade (tons)"},
+        template:"simple_white"
+    });
+}
+
+function drawProductionTimeline(base) {
+
+    if(!gapData) return;
+
+    const gap = gapData.filter(d => d.year >= 2022 && d.year <= 2024);
+
+    const gapAgg = groupByYear(gap,"origin_production_qty","sum");
+    const baseAgg = groupByYear(base,"origin_production_qty","sum");
+
+    const combined = [...gapAgg, ...baseAgg]
+        .sort((a,b)=>a.year-b.year);
+
+    Plotly.newPlot("productionTimeline",[{
+        x: combined.map(d=>d.year),
+        y: combined.map(d=>d.value),
+        mode:"lines+markers",
+        name:"Total Origin Production"
+    }],{
+        title:"Total Production Quantity (Ton)",
+        xaxis:{title:"Year"},
+        yaxis:{title:"Production Quantity"},
+        template:"simple_white"
+    });
+}
+
+function drawAverageCostTimeline(base) {
+
+    if(!gapData) return;
+
+    const gap = gapData.filter(d => d.year >= 2022 && d.year <= 2024);
+
+    const gapAgg = groupByYear(gap,"transport_cost_per_ton_pred","mean");
+    const baseAgg = groupByYear(base,"transport_cost_per_ton_pred","mean");
+
+    const combined = [...gapAgg, ...baseAgg]
+        .sort((a,b)=>a.year-b.year);
+
+    Plotly.newPlot("avgCostTimeline",[{
+        x: combined.map(d=>d.year),
+        y: combined.map(d=>d.value),
+        mode:"lines+markers",
+        name:"Average Transport Cost"
+    }],{
+        title:"Average Maritime Transport Cost USD/Ton",
+        xaxis:{title:"Year"},
+        yaxis:{title:"USD per ton"},
+        template:"simple_white"
+    });
+}
+
+// -------------------------
+function drawTradeTimeline(base, scen) {
+
+    const baseAgg = groupByYear(base,"tons_seamode_pred","sum");
+    const scenAgg = groupByYear(scen,"tons_seamode_pred","sum");
+
+    const years = baseAgg.map(d=>d.year);
+
+    const scenIndex = scenAgg.map((d,i)=> (d.value/baseAgg[i].value)*100 );
+
+    Plotly.newPlot("tradeTimeline",[
+        { x:years, y:Array(years.length).fill(100), mode:"lines+markers", name:"Baseline"},
+        { x:years, y:scenIndex, mode:"lines+markers", name:"Scenario"}
+    ],{
+        title:"Trade Volume Index (Baseline = 100)",
+        template:"simple_white"
+    });
+}
+
+// -------------------------
+function drawTradeLevel(base, scen) {
+
+    const baseAgg = groupByYear(base,"tons_seamode_pred","sum");
+    const scenAgg = groupByYear(scen,"tons_seamode_pred","sum");
+
+    Plotly.newPlot("tradeLevel",[
+        { x:baseAgg.map(d=>d.year),
+          y:baseAgg.map(d=>d.value),
+          mode:"lines+markers",
+          name:"Baseline"},
+        { x:scenAgg.map(d=>d.year),
+          y:scenAgg.map(d=>d.value),
+          mode:"lines+markers",
+          name:"Scenario"}
+    ],{
+        title:"Projected Seaborne Trade Volume (tons)",
+        template:"simple_white"
+    });
+}
+
+// -------------------------
+function drawCostIndex(base, scen) {
+
+    const baseAgg = groupByYear(base,"transport_cost_per_ton_pred","mean");
+    const scenAgg = groupByYear(scen,"transport_cost_per_ton_pred","mean");
+
+    const years = baseAgg.map(d=>d.year);
+    const scenIndex = scenAgg.map((d,i)=> (d.value/baseAgg[i].value)*100 );
+
+    Plotly.newPlot("costIndex",[
+        { x:years, y:Array(years.length).fill(100), mode:"lines+markers", name:"Baseline"},
+        { x:years, y:scenIndex, mode:"lines+markers", name:"Scenario"}
+    ],{
+        title:"Transport Cost Index (Baseline = 100)",
+        template:"simple_white"
+    });
+}
+
+// -------------------------
+function drawCostLevel(base, scen) {
+
+    const baseAgg = groupByYear(base,"transport_cost_per_ton_pred","mean");
+    const scenAgg = groupByYear(scen,"transport_cost_per_ton_pred","mean");
+
+    Plotly.newPlot("costLevel",[
+        { x:baseAgg.map(d=>d.year),
+          y:baseAgg.map(d=>d.value),
+          mode:"lines+markers",
+          name:"Baseline"},
+        { x:scenAgg.map(d=>d.year),
+          y:scenAgg.map(d=>d.value),
+          mode:"lines+markers",
+          name:"Scenario"}
+    ],{
+        title:"Projected Transport Cost (USD per ton)",
+        template:"simple_white"
+    });
+}
+
+// -------------------------
+function drawCorridorRanking(data) {
+
+    const grouped = {};
+
+    data.forEach(d=>{
+        const key = d.origin_isocode+" → "+d.destination_isocode;
+        if(!grouped[key]) grouped[key]=[];
+        grouped[key].push(d.pct_trade_change);
+    });
+
+    const ranked = Object.entries(grouped).map(([k,v])=>({
+        corridor:k,
+        value:v.reduce((a,b)=>a+b,0)/v.length
+    }))
+    .sort((a,b)=>a.value-b.value)
+    .slice(0,10);
+
+    Plotly.newPlot("corridorRanking",[{
+        x: ranked.map(d=>d.value),
+        y: ranked.map(d=>d.corridor),
+        type:"bar",
+        orientation:"h"
+    }],{
+        title:"Most Exposed Trade Corridors (Trade Volume Change (%))",
+        template:"simple_white"
+    });
+}
+
+// -------------------------
+// IMPORTER COST BURDEN (Δ vs Baseline, pp)
+// -------------------------
+function drawImporterBurdenDelta(data) {
+
+    const yearSelected = getSelectedValues("yearSelect");
+    if(yearSelected.length === 0) return;
+
+    const filtered = data.filter(d => yearSelected.includes(String(d.year)));
+
+    const grouped = {};
+
+    filtered.forEach(d => {
+
+        if(d.fob_per_ton_ref === undefined) return;
+
+        const delta = (
+            (d.transport_cost_per_ton_pred_stress / d.fob_per_ton_ref)
+            -
+            (d.transport_cost_per_ton_pred_baseline / d.fob_per_ton_ref)
+        ) * 100;
+
+        const key = d.destination_isocode;
+
+        if(!grouped[key]) grouped[key] = [];
+        grouped[key].push(delta);
+    });
+
+    const ranked = Object.entries(grouped).map(([k,v]) => ({
+        dest:k,
+        value:v.reduce((a,b)=>a+b,0)/v.length
+    }))
+    .sort((a,b)=>b.value-a.value)
+    .slice(0,10);
+
+    Plotly.newPlot("importerBurdenDelta",[{
+        x: ranked.map(d=>d.value),
+        y: ranked.map(d=>d.dest),
+        type:"bar",
+        orientation:"h"
+    }],{
+        title:"Importer Transport Cost Burden – Δ vs Baseline (pp)",
+        xaxis:{title:"Δ Transport Cost / FOB (pp)"},
+        template:"simple_white"
+    });
+}
+
+
+// -------------------------
+// IMPORTER COST BURDEN (Absolute Scenario % of FOB)
+// -------------------------
+function drawImporterBurdenLevel(data) {
+
+    const yearSelected = getSelectedValues("yearSelect");
+    if(yearSelected.length === 0) return;
+
+    const filtered = data.filter(d => yearSelected.includes(String(d.year)));
+
+    const grouped = {};
+
+    filtered.forEach(d => {
+
+        if(d.fob_per_ton_ref === undefined) return;
+
+        const level = (
+            d.transport_cost_per_ton_pred_stress / d.fob_per_ton_ref
+        ) * 100;
+
+        const key = d.destination_isocode;
+
+        if(!grouped[key]) grouped[key] = [];
+        grouped[key].push(level);
+    });
+
+    const ranked = Object.entries(grouped).map(([k,v]) => ({
+        dest:k,
+        value:v.reduce((a,b)=>a+b,0)/v.length
+    }))
+    .sort((a,b)=>b.value-a.value)
+    .slice(0,10);
+
+    Plotly.newPlot("importerBurdenLevel",[{
+        x: ranked.map(d=>d.value),
+        y: ranked.map(d=>d.dest),
+        type:"bar",
+        orientation:"h"
+    }],{
+        title:"Importer Transport Cost Burden – Scenario Level (% of FOB)",
+        xaxis:{title:"Transport Cost / FOB (%)"},
+        template:"simple_white"
+    });
+}
+
+
+// -------------------------
+function updateCharts() {
+
+    const base = filterData(baselineData);
+    const scen = filterData(scenarioData);
+    const cmp  = filterData(compareData);
+
+    const baselineOnly = document.getElementById("baselineOnlyToggle").checked;
+
+    if(baselineOnly){
+        drawTradeLevel(base, base);
+        drawCostLevel(base, base);
+        drawTradeTimeline(base, base);
+        drawCombinedVolumeTimeline(base);
+        drawProductionTimeline(base);
+        drawAverageCostTimeline(base);
+        Plotly.purge("corridorRanking");
+        Plotly.purge("importerBurdenDelta");
+        Plotly.purge("importerBurdenLevel");
+        return;
+    }
+
+    drawTradeTimeline(base,scen);
+    drawTradeLevel(base,scen);
+    drawCostIndex(base,scen);
+    drawCostLevel(base,scen);
+    drawCombinedVolumeTimeline(base);
+    drawProductionTimeline(base);
+    drawAverageCostTimeline(base);
+    drawCorridorRanking(cmp);
+    drawImporterBurdenDelta(cmp);
+    drawImporterBurdenLevel(cmp);
+}
+
+// -------------------------
+document.getElementById("scenarioSelect")
+.addEventListener("change",e=>loadScenario(e.target.value));
+
+["yearSelect","productSelect","originSelect","destinationSelect"]
+.forEach(id=>{
+    document.getElementById(id)
+    .addEventListener("change",updateCharts);
+});
+
+document.getElementById("affectedToggle")
+    .addEventListener("change",updateCharts);
+
+document.getElementById("baselineOnlyToggle")
+    .addEventListener("change",updateCharts);
+
+// initial load
+(async () => {
+    await loadScenarioList();
+    if (availableScenarios.length > 0) {
+        loadScenario(availableScenarios[0]);
+    }
+})();
+
+</script>
+</body>
+</html> 
