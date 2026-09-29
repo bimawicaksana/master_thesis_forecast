@@ -1,0 +1,2 @@
+model,r2,rmse,mae,mape,extreme_errors,extreme_share,evaluation_scope,scale,target,provenance,provenance_note
+ANN,0.8757,1.1657,0.7619,36.13,8543,14.28,reported_test_dataset,log_trade_tonnes,log_maritime_trade_volume_tonnes,defended_thesis_reported,"Metrics reproduce the final defended thesis. The exact row-level historical test prediction artifact/test membership was not recovered, so these values are not linked to a dashboard prediction CSV."

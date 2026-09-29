@@ -3,13 +3,101 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trade Flow Model</title>
+  <title>Maritime Trade Flow Modelling</title>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 </head>
 <body>
 <nav class="site-nav" aria-label="Primary navigation"><div class="nav-links"><a href="index.html">Home</a><a href="segmentation.html">Segmentation</a><a href="transport_cost_model.html">Transport Cost</a><a href="trade_flow_model.html" aria-current="page">Trade Flow</a><a href="forecast_simulation.html">Forecast</a><a href="data_panel_overview.html">Data</a></div></nav>
-<header><h1>Trade Flow Model</h1><p>A future workspace for presenting the bilateral maritime agri-food trade flow modelling component.</p></header>
-<main><span class="status">MVP · Under development</span><section class="placeholder"><h2>Model dashboard</h2><p>This page is reserved for the trade flow model component. Validated model information and analytical visualizations will be added in a later phase.</p></section></main>
+<header><h1>Maritime Trade Flow Modelling</h1><p>Gravity-based econometric and machine-learning models for bilateral maritime cereal trade volumes.</p></header>
+<main class="trade-flow">
+  <span class="status">MVP</span>
+  <p class="meta">OLS provides interpretable gravity relationships in log trade volume. PPML models trade volume in levels and handles zero/nonnegative outcomes. Fixed-effect specifications capture structural heterogeneity. ANN captures nonlinear interactions and was retained as the main predictive trade-flow model in the thesis.</p>
+  <aside class="tf-notice" aria-label="Methodology">
+    <strong>Research methodology</strong>
+    <p>Model evaluation scopes and metric scales differ across methods and should be interpreted accordingly. ANN performance is presented using the evaluation metrics reported in the thesis.</p>
+  </aside>
+  <noscript><p class="tf-error">Enable JavaScript to load the research evidence and interactive charts.</p></noscript>
+  <section aria-labelledby="overview-heading">
+    <h2 id="overview-heading">Gravity-Econometric Models</h2>
+    <div class="tf-grid">
+      <article class="tf-panel"><h3>OLS</h3><p>Log-transformed maritime trade volume target. An interpretable linear gravity benchmark.</p></article>
+      <article class="tf-panel"><h3>PPML</h3><p>Maritime trade volume in tonnes: a level outcome. Model fit is reported as McFadden pseudo-R², rather than ordinary R².</p></article>
+    </div>
+    <div class="tf-spec-grid">
+      <article class="tf-panel"><h3>Pooled</h3><p>Global gravity benchmark.</p></article>
+      <article class="tf-panel"><h3>Product Fixed Effects</h3><p>Control structural heterogeneity across products.</p></article>
+      <article class="tf-panel"><h3>Origin / Destination Fixed Effects</h3><p>Separate exporter and importer fixed effects.</p></article>
+    </div>
+  </section>
+  <section aria-labelledby="performance-heading">
+    <h2 id="performance-heading">Econometric Performance</h2>
+    <p class="meta">OLS and PPML are presented separately. Consult each metric’s scale, evaluation scope; these panels do not form a model leaderboard.</p>
+    <p id="metrics-status" role="status" aria-live="polite">Loading econometric metrics…</p>
+    <div class="tf-panel">
+      <h3>OLS Adjusted R² by Specification</h3>
+      <p class="meta">OLS is summarized using adjusted R².</p>
+      <p id="ols-metadata" class="tf-metadata"></p>
+      <div id="ols-chart" class="tf-chart" role="img" aria-label="OLS adjusted R squared by specification; equivalent values are in the metrics table"></div>
+    </div>
+    <div class="tf-panel">
+      <h3>PPML Performance</h3>
+      <p class="meta">McFadden pseudo-R² is shown separately from error metrics.</p>
+      <div id="ppml-fit-cards" class="tf-spec-grid"></div>
+      <div class="tf-filters">
+        <label for="ppml-metric">Error metric:</label>
+        <select id="ppml-metric" disabled><option value="rmse">RMSE</option><option value="mae">MAE</option><option value="mape">MAPE</option><option value="extreme_share">Extreme Share</option></select>
+      </div>
+      <p id="ppml-metadata" class="tf-metadata"></p>
+      <div id="ppml-chart" class="tf-chart" role="img" aria-label="PPML selected error metric by specification; equivalent values are in the metrics table"></div>
+    </div>
+    <div class="tf-panel">
+      <h3>Econometric metric detail</h3>
+      <table id="metrics-table" class="display" aria-label="Econometric metrics"><thead><tr></tr></thead></table>
+    </div>
+  </section>
+  <section aria-labelledby="coefficients-heading">
+    <h2 id="coefficients-heading">Econometric Coefficients</h2>
+    <p class="meta"><span class="tf-badge">Model coefficients</span> Significance labels follow the reported model results. Missing p-values display as “Not reported”.</p>
+    <p id="coefficients-status" role="status" aria-live="polite">Loading coefficients…</p>
+    <div class="tf-filters">
+      <label for="tf-family">Model Family:</label><select id="tf-family" disabled><option value="OLS">OLS</option><option value="PPML">PPML</option></select>
+      <label for="tf-specification">Specification:</label><select id="tf-specification" disabled><option value="pooled">Pooled</option><option value="product_fe">Product FE</option><option value="origin_destination_fe">Origin / Destination FE</option></select>
+      <label for="tf-term-type">Term Type:</label><select id="tf-term-type" disabled><option value="structural">Structural terms</option><option value="fixed_effect">Fixed effects</option><option value="all">All terms</option></select>
+    </div>
+    <p id="coefficient-count" class="meta" aria-live="polite"></p>
+    <p id="coefficient-metadata" class="tf-metadata"></p>
+    <div id="coefficient-chart-panel" class="tf-panel">
+      <h3>Structural coefficients</h3>
+      <div id="tf-coefficient-chart" class="tf-chart" role="img" aria-label="Structural coefficients with a zero reference line; equivalent values are in the coefficient table"></div>
+    </div>
+    <div class="tf-panel">
+      <h3>Coefficient detail</h3>
+      <p class="meta">Fixed effects and All terms selections use this paginated table, avoiding hundreds of dummy coefficients on a chart. Every source coefficient is accessible through the model, specification and term-type selectors.</p>
+      <table id="tf-coefficient-table" class="display" aria-label="Econometric coefficient data"><thead><tr></tr></thead></table>
+    </div>
+  </section>
+  <section aria-labelledby="ann-heading">
+    <h2 id="ann-heading">Artificial Neural Network Performance</h2>
+    <p id="ann-status" role="status" aria-live="polite">Loading ANN evaluation metrics…</p>
+    <div id="ann-metrics"></div>
+    <aside class="tf-notice" id="ann-limitation"><strong>ANN evaluation</strong><p>ANN performance is presented using the evaluation metrics reported in the thesis.</p></aside>
+  </section>
+  <section aria-labelledby="roles-heading">
+    <h2 id="roles-heading">Model Roles in the Trade-Flow Framework</h2>
+    <div class="tf-grid">
+      <article class="tf-panel"><h3>OLS</h3><p>Interpretability and gravity benchmark</p></article>
+      <article class="tf-panel"><h3>PPML</h3><p>Robust econometric estimator for nonnegative trade flows and heteroskedasticity</p></article>
+      <article class="tf-panel"><h3>Fixed Effects</h3><p>Control structural heterogeneity across products/exporters/importers</p></article>
+      <article class="tf-panel"><h3>ANN</h3><p>Nonlinear predictive model retained for trade-flow forecasting in the thesis</p></article>
+    </div>
+  </section>
+</main>
 <footer>© 2026 — Master Thesis Dashboard · Open-access via GitHub Pages</footer>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script src="js/trade_flow.js"></script>
 </body>
 </html>

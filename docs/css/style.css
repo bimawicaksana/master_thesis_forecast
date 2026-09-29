@@ -9,6 +9,142 @@
   --muted: #555555;
 }
 
+/* Forecast-only helpers: preserve every other module's layout. */
+.forecast .fc-panel { background: var(--surface); padding: 22px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,.08); min-width: 0; margin: 20px 0; }
+.forecast .fc-notice { background: var(--footer); border-left: 3px solid #b9c9d8; padding: 16px 20px; margin: 20px 0; font-size: 14px; overflow-wrap: anywhere; }
+.forecast .fc-notice p:last-child { margin-bottom: 0; }
+.forecast .fc-kpis { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 16px; }
+.forecast .fc-kpis > div { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 16px; min-width: 0; }
+.forecast .fc-kpis dt { font-size: 13px; color: var(--muted); }
+.forecast .fc-kpis dd { margin: 8px 0 0; font-size: 19px; color: var(--primary-dark); overflow-wrap: anywhere; }
+.forecast .fc-role-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 20px; }
+.forecast h3 { color: var(--primary-dark); }
+.forecast .fc-panel h3:first-child { margin-top: 0; }
+.forecast .fc-filters { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 20px 0; }
+.forecast .fc-selector { background: var(--footer); padding: 18px; border-radius: 6px; }
+.forecast select, .forecast button { font: inherit; padding: 10px 12px; border: 1px solid #b9c9d8; border-radius: 4px; max-width: 100%; }
+.forecast select { background: var(--surface); color: var(--text); }
+.forecast button { background: var(--primary); color: white; cursor: pointer; }
+.forecast button:disabled { opacity: .65; cursor: progress; }
+.forecast :is(button,select,summary,input):focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+.forecast .fc-checkbox { display: flex; align-items: center; gap: 8px; }
+.forecast .fc-chart { width: 100%; height: 430px; }
+.forecast .fc-products-chart { min-width: 650px; height: 520px; }
+.forecast .fc-corridor-chart { height: 500px; }
+.forecast .fc-chart-scroll, .forecast .fc-table-scroll { overflow-x: auto; }
+.forecast .fc-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.forecast .fc-table th, .forecast .fc-table td { padding: 12px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.forecast .fc-table th:first-child, .forecast .fc-table td:first-child { text-align: left; }
+.forecast caption { text-align: left; padding: 12px 0; font-weight: 600; color: var(--primary-dark); }
+.forecast table.dataTable td { white-space: nowrap; }
+.forecast details { margin-top: 20px; }
+.forecast summary { cursor: pointer; color: var(--primary-dark); font-weight: 600; padding: 8px 0; }
+.forecast li { margin: 10px 0; }
+.forecast .fc-error { background: #fff1ef; color: #7c2929; padding: 14px; border-left: 4px solid #b44343; }
+@media (max-width: 700px) {
+  .forecast .fc-role-grid { grid-template-columns: 1fr; gap: 0; }
+  .forecast .fc-panel { padding: 14px; }
+  .forecast .fc-kpis { grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); }
+  .forecast .fc-chart { height: 440px; }
+  .forecast .fc-products-chart { height: 520px; }
+  .forecast .fc-corridor-chart { height: 500px; }
+}
+
+/* Trade-flow styles are scoped to this module. */
+.trade-flow .tf-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.trade-flow .tf-spec-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.trade-flow .tf-panel { background: white; padding: 22px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); min-width: 0; margin: 20px 0; }
+.trade-flow h3 { color: var(--primary-dark); }
+.trade-flow .tf-panel h3:first-child { margin-top: 0; }
+.trade-flow .tf-notice { background: var(--footer); border-left: 3px solid #b9c9d8; padding: 16px 20px; margin: 20px 0; font-size: 14px; }
+.trade-flow .tf-notice p:last-child { margin-bottom: 0; }
+.trade-flow .tf-badge { display: inline-block; padding: 5px 9px; margin: 0 6px 8px 0; border: 1px solid #b9c9d8; border-radius: 4px; color: var(--primary-dark); background: var(--footer); font-size: 13px; font-weight: 600; }
+.trade-flow .tf-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 18px; }
+.trade-flow .tf-metrics dt { color: var(--muted); font-size: 13px; }
+.trade-flow .tf-metrics dd { margin: 4px 0 0; font-size: 24px; color: var(--primary-dark); overflow-wrap: anywhere; }
+.trade-flow .tf-fit-value { font-size: 26px; color: var(--primary-dark); margin: 8px 0; }
+.trade-flow .tf-metadata { font-size: 14px; overflow-wrap: anywhere; }
+.trade-flow .tf-filters { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 18px 0; }
+.trade-flow select { max-width: 100%; padding: 10px; font: inherit; border: 1px solid #b9c9d8; border-radius: 4px; background: white; color: var(--text); }
+.trade-flow .tf-chart { width: 100%; height: 470px; }
+.trade-flow .tf-error { padding: 14px; border-left: 4px solid #b44343; background: #fff1ef; color: #7c2929; }
+.trade-flow table.dataTable td { white-space: nowrap; }
+@media (max-width: 640px) {
+  .trade-flow .tf-grid, .trade-flow .tf-spec-grid { grid-template-columns: 1fr; gap: 0; }
+  .trade-flow .tf-panel { padding: 14px; }
+  .trade-flow .tf-chart { height: 430px; }
+}
+
+/* Transport-cost styles are scoped to this module. */
+.transport-cost .tc-notice { background: var(--footer); border-left: 3px solid #b9c9d8; padding: 16px 20px; margin: 20px 0; font-size: 14px; }
+.transport-cost .tc-notice p:last-child { margin-bottom: 0; }
+.transport-cost .tc-card-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.transport-cost .tc-role-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+.transport-cost .tc-panel,
+.transport-cost .tc-model-card { background: white; padding: 22px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); min-width: 0; margin: 20px 0; }
+.transport-cost h3 { color: var(--primary-dark); }
+.transport-cost .tc-model-card h3,
+.transport-cost .tc-panel h3:first-child { margin-top: 0; }
+.transport-cost .tc-badge { display: inline-block; padding: 5px 9px; margin: 0 6px 8px 0; border: 1px solid #b9c9d8; border-radius: 4px; color: var(--primary-dark); background: var(--footer); font-size: 13px; font-weight: 600; }
+.transport-cost .tc-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.transport-cost .tc-metrics dt { color: var(--muted); font-size: 13px; }
+.transport-cost .tc-metrics dd { margin: 4px 0 0; font-size: 22px; color: var(--primary-dark); overflow-wrap: anywhere; }
+.transport-cost .tc-metadata { font-size: 14px; overflow-wrap: anywhere; }
+.transport-cost .tc-filters { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 18px 0; }
+.transport-cost select { max-width: 100%; padding: 10px; font: inherit; border: 1px solid #b9c9d8; border-radius: 4px; background: white; color: var(--text); }
+.transport-cost .tc-chart { width: 100%; height: 470px; }
+.transport-cost .tc-ann-chart { height: 580px; }
+.transport-cost .tc-error { padding: 14px; border-left: 4px solid #b44343; background: #fff1ef; color: #7c2929; }
+.transport-cost table.dataTable td { white-space: nowrap; }
+.transport-cost details { font-size: 13px; overflow-wrap: anywhere; }
+.transport-cost summary { cursor: pointer; }
+@media (max-width: 640px) {
+  .transport-cost .tc-card-grid { grid-template-columns: 1fr; gap: 0; }
+  .transport-cost .tc-panel, .transport-cost .tc-model-card { padding: 14px; }
+  .transport-cost .tc-chart { height: 440px; }
+  .transport-cost .tc-ann-chart { height: 480px; }
+}
+
+/* Segmentation-only helpers; other dashboard pages retain their existing styles. */
+.segmentation .seg-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+  gap: 14px;
+  margin: 24px 0;
+}
+.segmentation .seg-kpis > div,
+.segmentation .seg-panel {
+  background: var(--surface);
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  min-width: 0;
+}
+.segmentation .seg-kpis dt { color: var(--muted); font-size: 14px; }
+.segmentation .seg-kpis dd { margin: 8px 0 0; font-size: 22px; font-weight: 600; color: var(--primary-dark); }
+.segmentation .seg-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.segmentation select { padding: 10px; max-width: 100%; font: inherit; color: var(--text); background: white; border: 1px solid #b9c9d8; border-radius: 4px; }
+.segmentation .seg-panel { margin: 24px 0; }
+.segmentation .seg-panel h3 { margin-top: 0; color: var(--primary-dark); }
+.segmentation .seg-chart { width: 100%; height: 520px; }
+.segmentation .seg-bar-viewport { overflow-x: auto; }
+.segmentation #corridor-bar { min-width: 580px; }
+.segmentation #bar-window { display: block; width: 100%; margin: 12px 0; }
+.segmentation .seg-legend { display: flex; flex-wrap: wrap; gap: 10px 22px; list-style: none; padding: 0; font-size: 13px; }
+.segmentation .seg-legend li::before { content: "●"; margin-right: 7px; }
+.segmentation .seg-q1::before { color: #b44343; }
+.segmentation .seg-q2::before { color: #cc842a; }
+.segmentation .seg-q3::before { color: #76569c; }
+.segmentation .seg-q4::before { color: #277f80; }
+.segmentation .seg-error { padding: 14px; background: #fff1ef; border-left: 4px solid #b44343; color: #7c2929; }
+.segmentation table.dataTable td { white-space: nowrap; }
+@media (max-width: 640px) {
+  .segmentation .seg-panel { padding: 12px; }
+  .segmentation .seg-chart { height: 440px; }
+  .segmentation .seg-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .segmentation .seg-kpis > div { padding: 14px; }
+}
+
 * {
   box-sizing: border-box;
 }

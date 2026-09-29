@@ -3,13 +3,135 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Forecast Simulation</title>
+  <title>Future Forecast Simulation</title>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 </head>
 <body>
 <nav class="site-nav" aria-label="Primary navigation"><div class="nav-links"><a href="index.html">Home</a><a href="segmentation.html">Segmentation</a><a href="transport_cost_model.html">Transport Cost</a><a href="trade_flow_model.html">Trade Flow</a><a href="forecast_simulation.html" aria-current="page">Forecast</a><a href="data_panel_overview.html">Data</a></div></nav>
-<header><h1>Forecast Simulation</h1><p>A future workspace for scenario-based exploration using the thesis forecasting pipeline.</p></header>
-<main><span class="status">MVP · Under development</span><section class="placeholder"><h2>Simulation dashboard</h2><p>This page is reserved for the forecast simulation component. Controls, model outputs, and analytical visualizations will be implemented after the underlying workflow is finalized.</p></section></main>
-<footer>© 2026 — Master Thesis Dashboard · Open-access via GitHub Pages</footer>
+<header><h1>Future Forecast Simulation</h1><p>Conditional scenario analysis of maritime cereal trade and transport-cost exposure under geopolitical, climatic and regulatory shocks.</p></header>
+<main class="forecast">
+  <span class="status">Scenario analysis</span>
+  <p class="meta">The simulations examine first-order responses of maritime cereal trade and transport costs to geopolitical, climatic and regulatory shocks.</p>
+  <aside class="fc-notice" aria-label="Scenario methodology">
+    <strong>Conditional scenario analysis</strong>
+    <p>Scenario results show conditional changes relative to their respective baseline assumptions. They are analytical stress tests rather than probabilistic forecasts of future outcomes.</p>
+  </aside>
+  <noscript><p class="fc-error">Enable JavaScript to load the scenario data, charts and tables.</p></noscript>
+
+  <section aria-labelledby="fc-framework-heading">
+    <h2 id="fc-framework-heading">Scenario Framework</h2>
+    <div class="fc-filters fc-selector">
+      <label for="fc-scenario">Scenario</label>
+      <select id="fc-scenario"><option value="black_sea">Black Sea Conflict</option><option value="el_nino">El Niño</option><option value="eu_ets">EU Emissions Trading System</option></select>
+    </div>
+    <p id="fc-metadata-status" role="status" aria-live="polite">Loading scenario assumptions…</p>
+    <dl id="fc-overview" class="fc-kpis"></dl>
+    <div class="fc-panel">
+      <h3>Scenario Assumptions</h3>
+      <dl id="fc-shocks" class="fc-kpis"></dl>
+      <p class="meta">Percentages describe the scenario assumptions. Baseline-volume coverage refers to the wheat/maize corridor-selection basis across 2025–2030, not necessarily the dashboard product scope.</p>
+      <p id="fc-caveat" class="fc-notice">Scenario-specific scope caveats will appear here when the assumptions load.</p>
+      <p id="fc-interpretation" class="meta"></p>
+    </div>
+  </section>
+
+  <section aria-labelledby="fc-trade-heading">
+    <h2 id="fc-trade-heading">Scenario Trade Outlook</h2>
+    <p class="meta">Same-year scenario baseline = 100. This is a conditional scenario comparison, not a ranking across cases.</p>
+    <p id="fc-trade-status" role="status" aria-live="polite">Loading trade outlook…</p>
+    <div class="fc-panel">
+      <div id="fc-trade-chart" class="fc-chart" role="img" aria-label="Scenario trade volume index against baseline 100; values also appear in the table below"></div>
+      <div class="fc-table-scroll"><table id="fc-trade-table" class="fc-table"><caption>Trade outlook — selected scenario</caption><thead><tr><th>Year</th><th>Scenario Index</th><th>Change vs Baseline</th></tr></thead><tbody></tbody></table></div>
+      <details><summary>Scenario-panel totals</summary>
+        <p>Absolute baseline values reported in the thesis are shown separately from scenario-relative results.</p>
+        <div class="fc-table-scroll"><table id="fc-tonnes-table" class="fc-table"><caption>Technical detail — tonnes in the scenario panel</caption><thead><tr><th>Year</th><th>Baseline Trade Tons</th><th>Scenario Trade Tons</th></tr></thead><tbody></tbody></table></div>
+      </details>
+      <p id="fc-trade-coverage" class="meta"></p>
+    </div>
+  </section>
+
+  <section aria-labelledby="fc-products-heading">
+    <h2 id="fc-products-heading">Product-Level Trade Impact</h2>
+    <div class="fc-filters"><label for="fc-product-year">Year</label><select id="fc-product-year"><option>2025</option><option>2026</option><option>2027</option><option>2028</option><option>2029</option><option selected>2030</option></select></div>
+    <p id="fc-products-status" role="status" aria-live="polite">Loading product comparisons…</p>
+    <p id="fc-focus" class="meta"></p>
+    <p class="meta">All eight products are shown. Filled bars identify the declared dashboard focus; outlined bars show other products. Display focus does not change which products were affected in the simulation.</p>
+    <div class="fc-panel fc-chart-scroll"><div id="fc-products-chart" class="fc-chart fc-products-chart" role="img" aria-label="Product trade changes for the selected scenario and year; filled bars indicate dashboard focus"></div></div>
+    <p class="meta">Product effects are dashboard aggregate-volume comparisons calculated as the ratio of scenario to baseline total tonnes. This differs from the mean-of-observation index used in some thesis figures.</p>
+  </section>
+
+  <section aria-labelledby="fc-cost-heading">
+    <h2 id="fc-cost-heading">Transport Cost Impact</h2>
+    <p class="meta"><strong>Scoped Transport Cost Index.</strong> Configured affected corridors only; approved dashboard focus products; finite positive transport costs; unweighted arithmetic mean. This is neither a global nor a trade-weighted freight-cost index.</p>
+    <p id="fc-cost-status" role="status" aria-live="polite">Loading scoped cost index…</p>
+    <p id="fc-cost-scope" class="meta"></p>
+    <div class="fc-panel">
+      <div id="fc-cost-chart" class="fc-chart" role="img" aria-label="Scoped transport cost index against baseline 100; values also appear in the table below"></div>
+      <div class="fc-table-scroll"><table id="fc-cost-table" class="fc-table"><caption>Transport cost per ton — scoped unweighted means</caption><thead><tr><th>Year</th><th>Baseline Mean Cost/Ton</th><th>Scenario Mean Cost/Ton</th><th>Cost Index</th><th>Change %</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="fc-corridors-heading">
+    <h2 id="fc-corridors-heading">Corridor Impacts</h2>
+    <p class="meta">Detailed corridor analysis contains approximately 91,000 aggregated records (32.2 MB) and is loaded on demand.</p>
+    <button id="fc-load-corridors" type="button">Load Corridor Analysis</button>
+    <p id="fc-corridors-status" role="status" aria-live="polite">Not loaded. No corridor data is downloaded until you choose to load it.</p>
+    <div id="fc-corridor-content" hidden>
+      <div class="fc-filters">
+        <label for="fc-corridor-scenario">Scenario</label><select id="fc-corridor-scenario"><option value="black_sea">Black Sea Conflict</option><option value="el_nino">El Niño</option><option value="eu_ets">EU Emissions Trading System</option></select>
+        <label for="fc-corridor-year">Year</label><select id="fc-corridor-year"><option>2025</option><option>2026</option><option>2027</option><option>2028</option><option>2029</option><option selected>2030</option></select>
+        <label class="fc-checkbox"><input id="fc-configured-only" type="checkbox" checked> Configured Pairs Only</label>
+      </div>
+      <p class="meta">Scenario selection is shared with the rest of the page. Corridor metrics aggregate represented products and cannot be recomputed by product from this dashboard file.</p>
+      <p id="fc-corridor-coverage" class="fc-notice"></p>
+      <div class="fc-panel">
+        <h3>Most Affected Corridors</h3>
+        <p class="meta">Up to ten negative Mean Trade Changes, sorted ascending within the selected scenario, year and pair scope. These are not cross-scenario rankings.</p>
+        <p id="fc-ranking-note" role="status"></p>
+        <div id="fc-corridor-chart" class="fc-chart fc-corridor-chart" role="img" aria-label="Top ten negative mean corridor trade changes; all filtered records are available in the table"></div>
+      </div>
+      <p class="meta">Mean Trade Change is the arithmetic mean of observation-level percentage changes across represented products, using an equal-observation measure.</p>
+      <p class="meta">Aggregate Trade Delta compares summed scenario tonnes with summed baseline tonnes for the corridor and is a separate volume-based measure.</p>
+      <div class="fc-panel"><table id="fc-corridor-table" class="display"><caption>Corridor detail — selected scenario, year and pair scope</caption><thead><tr></tr></thead></table></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="fc-context-heading">
+    <h2 id="fc-context-heading">Defended Thesis Baseline Context</h2>
+    <p id="fc-context-status" role="status" aria-live="polite">Loading separate thesis context…</p>
+    <dl id="fc-baseline-context" class="fc-kpis"></dl>
+    <p class="fc-notice">Absolute baseline values reported in the thesis are shown separately from scenario-relative results. These contextual values are not the baseline underlying the scenario indices.</p>
+    <p class="meta">The two thesis-reported values are context only; intermediate years are not estimated here.</p>
+  </section>
+
+  <section aria-labelledby="fc-roles-heading">
+    <h2 id="fc-roles-heading">Model / Scenario Interpretation</h2>
+    <div class="fc-role-grid">
+      <article class="fc-panel"><h3>Black Sea Conflict</h3><p>Conditional geopolitical, supply and maritime shock affecting UKR/RUS, with a wheat/maize focus and approximately 85% of eligible baseline volume selected.</p></article>
+      <article class="fc-panel"><h3>El Niño</h3><p>Climate / production-led case for ARG/AUS. This scenario includes transport shocks as specified in the thesis results table; methodology text also describes logistics as broadly intact.</p></article>
+      <article class="fc-panel"><h3>EU Emissions Trading System</h3><p>Policy / maritime-cost case on EU-linked corridors with a +12% freight shock. Intended, configured and implemented product scopes differ.</p></article>
+    </div>
+    <details class="fc-panel"><summary>Methodological notes</summary>
+      <ol>
+        <li>Scenario results are conditional stress tests, not probabilistic predictions.</li>
+        <li>Each scenario uses its own baseline. Absolute baseline values reported in the thesis are shown separately and do not underpin these scenario indices.</li>
+        <li>Annual and product totals aggregate the forecast panel as supplied, including repeated records and records with incomplete country identifiers. They are panel summaries, not a deduplicated census of world trade.</li>
+        <li>Corridor views use complete, unique year/origin/destination/product identities. Exclusion from pairing does not imply those records must be excluded from every aggregate. Some country-code/label mappings require review; interpret country labels alongside their ISO codes.</li>
+        <li>The product aggregate-volume metric differs from the historical arithmetic mean of observation-level indices.</li>
+        <li>The cost index is scoped and unweighted, with a fixed product scope. It is not a global or trade-weighted index.</li>
+        <li>EU ETS intended wheat/maize/rice; selection used wheat/maize; the transport shock applies to all eight cereal products on the selected corridors.</li>
+        <li>El Niño follows the results-table assumptions including transport shocks, while methodology text describes logistics as broadly intact. This contradiction is not resolved here.</li>
+        <li>Importer cost-burden analysis is deferred pending denominator and sample validation. No importer exposure, FOB burden or food-security burden score is presented.</li>
+      </ol>
+    </details>
+  </section>
+</main>
+<footer>© 2026 — Master Thesis Dashboard · Results are based on the defended master’s thesis. Forecast scenarios are conditional analytical stress tests, not probabilistic forecasts.</footer>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script src="js/forecast_simulation.js"></script>
 </body>
 </html>

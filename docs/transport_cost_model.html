@@ -3,13 +3,107 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Transport Cost Model</title>
+  <title>Maritime Transport Cost Modelling</title>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 </head>
 <body>
 <nav class="site-nav" aria-label="Primary navigation"><div class="nav-links"><a href="index.html">Home</a><a href="segmentation.html">Segmentation</a><a href="transport_cost_model.html" aria-current="page">Transport Cost</a><a href="trade_flow_model.html">Trade Flow</a><a href="forecast_simulation.html">Forecast</a><a href="data_panel_overview.html">Data</a></div></nav>
-<header><h1>Transport Cost Model</h1><p>A future workspace for presenting the thesis transport cost modelling framework and validated outputs.</p></header>
-<main><span class="status">MVP · Under development</span><section class="placeholder"><h2>Model dashboard</h2><p>This page is reserved for the transport cost model component. Model summaries, diagnostics, and analytical visualizations will be added after validation.</p></section></main>
+<header>
+  <h1>Maritime Transport Cost Modelling</h1>
+  <p>Gravity-based econometric and machine-learning models for analysing and predicting bilateral maritime transport costs for cereal commodities.</p>
+</header>
+<main class="transport-cost">
+  <span class="status">MVP</span>
+  <p class="meta">Pooled OLS and Gamma GLM provide global structural benchmarks; fixed-effect models capture commodity and country-level heterogeneity. Ridge provides a regularized predictive benchmark. ANN captures nonlinear relationships and was retained in the thesis forecasting framework. Evaluation samples and target scales differ across these model families.</p>
+  <aside class="tc-notice" aria-label="Methodology">
+    <strong>Research methodology</strong>
+    <p>Results are based on the defended master’s thesis. Model evaluation scopes and target scales differ across methods and should be interpreted accordingly.</p>
+    <p>The implemented target is <strong>maritime transport expenditure per ton</strong>; the log target is <strong>log maritime transport expenditure per ton</strong>.</p>
+  </aside>
+  <noscript><p class="tc-error">Enable JavaScript to load the model evidence and interactive charts.</p></noscript>
+
+  <section aria-labelledby="pooled-heading">
+    <h2 id="pooled-heading">Pooled Econometric Benchmarks</h2>
+    <p class="meta">The pooled specifications estimate average structural relationships across the transport-cost sample. OLS models the log-transformed cost target, while the Gamma GLM models the positive level cost using a log link. Their error metrics therefore should not be interpreted as directly comparable on a common numerical scale.</p>
+    <p id="pooled-status" role="status" aria-live="polite">Loading pooled metrics…</p>
+    <div id="pooled-cards" class="tc-card-grid"></div>
+    <div class="tc-panel" aria-labelledby="coeff-heading">
+      <h3 id="coeff-heading">Pooled coefficients</h3>
+      <p class="tc-notice">Reported coefficient values reproduce the results presented in the defended thesis, including identical displayed coefficients for OLS and Gamma GLM.</p>
+      <p id="coeff-status" role="status" aria-live="polite">Loading coefficients…</p>
+      <div class="tc-filters">
+        <label for="coefficient-model">Model:</label>
+        <select id="coefficient-model" disabled><option value="OLS">OLS</option><option value="GLM">GLM</option></select>
+      </div>
+      <p id="coefficient-provenance" class="meta"></p>
+      <div id="coefficient-chart" class="tc-chart" role="img" aria-label="Pooled coefficients; equivalent values are in the table below"></div>
+      <h3>Coefficient detail</h3>
+      <p class="meta">Variable identifiers are retained from the research output. Unreported p-values are shown as “Not reported”; no significance categories are inferred.</p>
+      <table id="coefficient-table" class="display" aria-label="Pooled coefficient values"><thead><tr></tr></thead></table>
+    </div>
+  </section>
+
+  <section aria-labelledby="fe-heading">
+    <h2 id="fe-heading">Commodity Fixed-Effect Models</h2>
+    <p class="meta">Fixed-effect specifications capture structural heterogeneity across commodities and trading countries. Model fit is evaluated within each commodity-specific estimation sample.</p>
+    <p class="tc-notice">R² uses log maritime transport expenditure per ton. RMSE, MAPE, bias and extreme errors use level expenditure per ton. Bias = predicted − actual. Extreme error threshold: relative level error &gt; 2.0.</p>
+    <p id="fe-status" role="status" aria-live="polite">Loading fixed-effect metrics…</p>
+    <div class="tc-panel">
+      <h3>Fixed-Effect Model Fit by Commodity</h3>
+      <p id="fe-metadata" class="meta"></p>
+      <div id="fe-chart" class="tc-chart" role="img" aria-label="Fixed-effect R squared by commodity code; equivalent values are in the table below"></div>
+      <h3>Commodity model detail</h3>
+      <table id="fe-table" class="display" aria-label="Fixed-effect model metrics"><thead><tr></tr></thead></table>
+    </div>
+  </section>
+
+  <section aria-labelledby="ml-heading">
+    <h2 id="ml-heading">Machine-Learning Evaluation</h2>
+    <p class="tc-notice">Ridge and ANN metrics are shown for descriptive reference but were generated under different evaluation scopes. Ridge uses held-out observations, whereas ANN results are in-sample fitted evaluations; they should not be interpreted as an equivalent out-of-sample model comparison.</p>
+    <p id="ml-status" role="status" aria-live="polite">Loading machine-learning metrics…</p>
+    <div id="ml-cards" class="tc-card-grid"></div>
+  </section>
+
+  <section aria-labelledby="ann-heading">
+    <h2 id="ann-heading">ANN Fitted vs Observed Transport Cost</h2>
+    <p class="meta"><span class="tc-badge">In-sample / all-data fitted</span> These are in-sample fitted results, not held-out test predictions. Axes show log maritime transport expenditure per ton. Filters change the displayed observations only; model metrics remain unchanged.</p>
+    <p id="ann-status" role="status" aria-live="polite">Loading ANN fitted observations…</p>
+    <div class="tc-filters">
+      <label for="ann-year">Year:</label>
+      <select id="ann-year" disabled><option value="">All Years</option></select>
+      <label for="ann-product">Product:</label>
+      <select id="ann-product" disabled><option value="">All Products</option></select>
+    </div>
+    <p id="ann-count" class="meta" aria-live="polite"></p>
+    <div class="tc-panel">
+      <h3>Fitted and observed values</h3>
+      <p class="meta">The dashed reference line is y = x, not an estimated regression line. Hover for observation details; drag to zoom and double-click to reset.</p>
+      <div id="ann-chart" class="tc-chart tc-ann-chart" role="img" aria-label="ANN fitted versus observed log maritime transport expenditure per ton; equivalent values are in the table below"></div>
+      <details><summary>Evaluation details</summary><p id="ann-metadata"></p></details>
+    </div>
+    <div class="tc-panel">
+      <h3>ANN fitted observation detail</h3>
+      <table id="ann-table" class="display" aria-label="ANN fitted observations"><thead><tr></tr></thead></table>
+    </div>
+  </section>
+
+  <section aria-labelledby="roles-heading">
+    <h2 id="roles-heading">Model Roles and Selection</h2>
+    <div class="tc-role-grid">
+      <article class="tc-panel"><h3>Pooled OLS / GLM</h3><p>Structural global benchmark</p></article>
+      <article class="tc-panel"><h3>Fixed Effects</h3><p>Heterogeneity and structural interpretation</p></article>
+      <article class="tc-panel"><h3>Ridge Regression</h3><p>Regularized predictive benchmark</p></article>
+      <article class="tc-panel"><h3>ANN</h3><p>Nonlinear model retained for forward transport-cost forecasting in the thesis</p></article>
+    </div>
+    <p class="meta">Results are based on the defended thesis. Evaluation designs differ across model families, so model roles should be interpreted together with their stated sample and scale.</p>
+  </section>
+</main>
 <footer>© 2026 — Master Thesis Dashboard · Open-access via GitHub Pages</footer>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script src="js/transport_cost.js"></script>
 </body>
 </html>

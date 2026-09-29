@@ -1,0 +1,3 @@
+model,r2,rmse,mae,mape,extreme_errors,extreme_share,n_obs,evaluation_scope,target,source_target_variable,metric_scale
+Ridge Regression,0.42844315078212825,0.8289423884802056,0.6195615536368032,19.10597452630886,4062,12.400781536207107,32756,held_out_random_test,log_maritime_transport_expenditure_per_ton,ln_cost_tonkm,log
+ANN,0.8332546917482133,0.4484922884277665,0.3062472714981755,8.923351552281597,1187,2.536921071191947,46789,in_sample_all_data,log_maritime_transport_expenditure_per_ton,ln_cost_tonkm,log

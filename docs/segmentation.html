@@ -5,11 +5,79 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trade &amp; Risk Segmentation</title>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 </head>
 <body>
 <nav class="site-nav" aria-label="Primary navigation"><div class="nav-links"><a href="index.html">Home</a><a href="segmentation.html" aria-current="page">Segmentation</a><a href="transport_cost_model.html">Transport Cost</a><a href="trade_flow_model.html">Trade Flow</a><a href="forecast_simulation.html">Forecast</a><a href="data_panel_overview.html">Data</a></div></nav>
-<header><h1>Trade &amp; Risk Segmentation</h1><p>A future workspace for exploring country, commodity, and bilateral corridor segments used in the research.</p></header>
-<main><span class="status">MVP · Under development</span><section class="placeholder"><h2>Segmentation dashboard</h2><p>This page is reserved for the segmentation component of the thesis dashboard. Research outputs and analytical visualizations will be added in a later development phase.</p></section></main>
+<header><h1>Trade &amp; Risk Segmentation</h1><p>Country exposure and strategic maritime trade corridors</p></header>
+<main class="segmentation">
+  <span class="status">MVP</span>
+  <noscript><p class="seg-error">Enable JavaScript to explore the segmentation datasets.</p></noscript>
+  <section aria-labelledby="country-heading">
+    <h2 id="country-heading">Country Exposure Segmentation — Importer Perspective</h2>
+    <p class="meta">This analysis segments importing countries according to two structural dimensions: food import dependency and maritime transport cost exposure. Countries are classified relative to the median value of each indicator, producing four strategic exposure quadrants.</p>
+    <p id="country-message" role="status" aria-live="polite">Loading country data…</p>
+    <dl id="country-kpis" class="seg-kpis" aria-label="Full country dataset summary"></dl>
+    <div class="seg-filter">
+      <label for="region-filter">Region:</label>
+      <select id="region-filter" disabled><option value="">All Regions</option></select>
+    </div>
+    <p id="country-coverage" class="meta" aria-live="polite"></p>
+    <div class="seg-panel">
+      <h3>Country exposure quadrants</h3>
+      <p id="country-thresholds" class="meta"></p>
+      <ul class="seg-legend" aria-label="Reported quadrant classifications">
+        <li class="seg-q1">Q1 — Critical Exposure</li>
+        <li class="seg-q2">Q2 — High Dependency, Low Cost</li>
+        <li class="seg-q3">Q3 — High Cost Sensitivity</li>
+        <li class="seg-q4">Q4 — Low Risk</li>
+      </ul>
+      <div id="country-chart" class="seg-chart" role="img" aria-label="Country exposure scatter plot; equivalent values are in the country table below"></div>
+    </div>
+    <div class="seg-panel">
+      <h3>Country detail</h3>
+      <table id="country-table" class="display" aria-label="Country exposure data"><thead><tr></tr></thead></table>
+    </div>
+  </section>
+  <section aria-labelledby="corridor-heading">
+    <h2 id="corridor-heading">Strategic Maritime Trade Corridor Ranking</h2>
+    <p class="meta">This analysis ranks bilateral maritime cereal corridors using a precomputed opportunity score combining trade volume, transport cost conditions, and liner shipping connectivity. The ranking is intended to identify strategically significant maritime trade lanes within the 2021 cereal trade network.</p>
+    <p id="corridor-message" role="status" aria-live="polite">Loading corridor data…</p>
+    <dl id="corridor-kpis" class="seg-kpis" aria-label="Full corridor dataset summary"></dl>
+    <div class="seg-filter">
+      <label for="top-filter">Show:</label>
+      <select id="top-filter" disabled>
+        <option value="10">Top 10</option><option value="30" selected>Top 30</option>
+        <option value="50">Top 50</option><option value="all">All Corridors</option>
+      </select>
+    </div>
+    <p id="corridor-coverage" class="meta" aria-live="polite"></p>
+    <div class="seg-panel">
+      <h3>Corridors by opportunity score</h3>
+      <p class="meta">Selection uses the reported opportunity rank. Bars are displayed from highest to lowest score. Dark blue indicates highlighted top corridors.</p>
+      <div id="bar-window-control" hidden>
+        <label for="bar-window" id="bar-window-label">Bar chart view</label>
+        <input type="range" id="bar-window" min="0" max="0" step="1" value="0">
+        <p class="meta">Move the slider to browse the selected corridors in groups of 30. All selected corridors remain in the scatter plot and table.</p>
+      </div>
+      <div class="seg-bar-viewport"><div id="corridor-bar" role="img" aria-label="Opportunity score bar chart; equivalent values are in the corridor table below"></div></div>
+    </div>
+    <div class="seg-panel">
+      <h3>Maritime volume and transport cost</h3>
+      <p class="meta">Marker colour represents the opportunity score. Hover for corridor details; use the chart controls to zoom and reset the view.</p>
+      <div id="corridor-scatter" class="seg-chart" role="img" aria-label="Corridor volume versus cost scatter plot; equivalent values are in the corridor table below"></div>
+    </div>
+    <div class="seg-panel">
+      <h3>Corridor detail</h3>
+      <table id="corridor-table" class="display" aria-label="Maritime corridor ranking data"><thead><tr></tr></thead></table>
+    </div>
+  </section>
+</main>
 <footer>© 2026 — Master Thesis Dashboard · Open-access via GitHub Pages</footer>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script src="js/segmentation.js"></script>
 </body>
 </html>
