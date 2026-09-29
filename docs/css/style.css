@@ -304,6 +304,50 @@ footer {
   text-align: center;
 }
 
+/* Shared two-level institutional footer. Logo canvases retain their 2:1 ratio. */
+.institutional-footer { padding: 32px 20px; }
+.footer-author { margin: 0; font-size: 17px; font-weight: 600; color: var(--primary-dark); }
+.footer-project { margin: 6px 0 0; }
+.footer-supervision { margin: 8px 0 0; }
+.footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 24px; margin: 0 0 20px; }
+.footer-links a { color: var(--primary-dark); text-underline-offset: 3px; }
+.footer-links a:focus-visible, .about-research a:focus-visible, .site-nav a:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+.footer-institutions { display: grid; justify-items: center; gap: 24px; margin: 28px auto; }
+.footer-group-label { margin: 0 0 10px; font-weight: 600; color: var(--primary-dark); }
+.footer-logo { display: block; max-width: 100%; height: auto; object-fit: contain; }
+.footer-logo-academic { width: 200px; margin: 0 auto; }
+.footer-logo-sponsor { width: 165px; }
+.footer-sponsor-logos { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px 30px; }
+.footer-disclaimer { max-width: 650px; margin: 0 auto; line-height: 1.6; }
+
+/* Academic context page; analytical modules retain their existing styles. */
+.about-research { max-width: 1000px; }
+.about-section { background: var(--surface); padding: 28px; border-radius: 6px; margin-bottom: 28px; box-shadow: 0 2px 6px rgba(0,0,0,.06); scroll-margin-top: 120px; }
+.about-section h2 { margin-top: 0; }
+.about-section p { line-height: 1.7; }
+.about-section a { color: var(--primary-dark); text-underline-offset: 3px; }
+.about-grid, .research-meta { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; }
+.source-card { background: var(--background); border: 1px solid var(--border); border-radius: 6px; padding: 20px; }
+.source-card h3 { margin: 0 0 8px; color: var(--primary-dark); font-size: 17px; }
+.source-card p { margin: 0; }
+.research-meta { margin: 24px 0 0; }
+.research-meta dt, .about-label { font-size: 14px; color: var(--muted); }
+.research-meta dd { margin: 5px 0 0; font-weight: 600; color: var(--primary-dark); }
+.supervisor-block { border-left: 3px solid var(--primary); padding: 8px 20px; background: var(--background); }
+.supervisor-block p { margin: 4px 0; }
+.supervisor-name { font-size: 20px; font-weight: 600; color: var(--primary-dark); }
+.institution-group { text-align: center; margin: 24px 0; }
+.institution-group h3 { font-size: 16px; color: var(--primary-dark); }
+.citation-block { border-left: 3px solid var(--border); padding-left: 20px; }
+.contact-placeholder { border: 1px dashed var(--muted); padding: 12px; display: inline-block; margin-top: 0; }
+@media (max-width: 640px) {
+  .about-section { padding: 20px; scroll-margin-top: 170px; }
+  .about-grid, .research-meta { grid-template-columns: 1fr; }
+}
+@media (max-width: 420px) {
+  .footer-sponsor-logos { flex-direction: column; }
+}
+
 @media (max-width: 640px) {
   .nav-links a {
     flex: 1 1 33.333%;
