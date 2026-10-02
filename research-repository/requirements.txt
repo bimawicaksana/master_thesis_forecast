@@ -1,0 +1,21 @@
+# Dependency inventory, NOT a verified or historically pinned environment.
+# Check exact versions against the original training environment before reproduction.
+numpy
+pandas>=2.2
+scipy
+scikit-learn
+statsmodels
+patsy
+matplotlib
+shap
+joblib
+tqdm
+plotly
+SQLAlchemy
+psycopg2-binary
+openpyxl
+pyarrow
+pyjanitor
+pyreadr
+jupyterlab
+ipykernel
